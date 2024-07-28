@@ -2,6 +2,27 @@ Notes
 =====
 
 
+For CAN:
+MCP251863 controller/ transceiver
+(See CANPico board)
+
+https://github.com/kentindell/canhack/tree/master/CANPico
+
+https://core-electronics.com.au/adafruit-picowbell-can-bus-for-pico-mcp2515-can-controller.html
+
+
+https://github.com/LukePrior/Raspberry-Pi-Thermal-Printer
+
+
+
+
+Firmata for Raspberry Pi Pico:
+
+ * Use ConfigurableFirmata with zero changes
+ * Board profile is "Arduino Mbed OS RP2040 Boards" -> "Raspberry Pi Pico"
+ * Upload methd: UF2
+
+
 Impressive 3D printed test jig run by a Raspberry Pi:
 
 https://www.youtube.com/watch?v=iTLnJ0uIZIg
