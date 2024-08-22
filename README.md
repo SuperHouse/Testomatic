@@ -46,9 +46,9 @@ between the Testomatic system and the test pins:
 A reference design for the TPCB has been created as a starting point for making DUT-specific versions.
 
 ## Features
-* 24 x 5V GPIOs.
-* 16 x 5V 16-bit ADCs (8 currently implemented).
-* 16 x 5V DACs (4 currently implemented).
+* 24 x 3V3 GPIOs.
+* 16 x 0-5V 16-bit ADCs (8 currently implemented).
+* 16 x 0-5V DACs (4 currently implemented).
 * 4-port USB hub passed up to test module.
 * SPI and I2C passed up to test module.
 * Pi HAT EEPROM on Testomatic PCB for compliance with HAT automatic configuration.
