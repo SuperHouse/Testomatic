@@ -1,34 +1,99 @@
 Testomatic PCB Test Jig System
 ==============================
 
-Copyright 2024 SuperHouse Automation Pty Ltd  www.superhouse.tv
+Copyright 2024 SuperHouse Automation Pty Ltd  [www.superhouse.tv]()
 
-Working files for our internal PCB test jig system. Very rough,
-definitely a work in progress and only put here so people can see
-progress and make suggestions.
+Testomatic is an open-source PCB test jig system with several goals:
+
+1. Minimise reinvention when creating a test jig for a new **Device
+Under Test (DUT)**.
+2. Provide enough built-in I/O to make the majority of tests easy, with
+expandability to make harder tests possible.
+3. Allow the chassis to be quickly reused for multiple DUTs, with
+each DUT having its own **Test Module**.
+4. Integration with an external test management / logging platform for storage of test results.
+
+Testomatic is based around a Raspberry Pi, with a special PCB to provide additional I/O and protect the PI from faults that may occur on the DUT. It uses removable Test Modules that provide the mechanical and electrical connection to each specific DUT. Currently we're using a simple Python testrunner script which has support for definition of multiple target boards, and can be controlled via the touchscreen using a control panel created using Node-RED Dasboard v2.
+
+This is definitely a work in progress and the design is rapidly
+developing. Most development and discussion of this project has taken
+place on SuperHouseTV livestreams on YouTube, and on the SuperHouse
+Discord server.
+
+The first v1.0 system used a Raspberry Pi Pico as an I/O expander but this structure has now been superceded:
 
 ![Prototype test jig](Images/Test-jig.jpg)
 
+The newer v2.0 system is still in development and uses a vertically-mounted PCB with a card edge connector for bridging between the Raspberry Pi and the Test Module:
 
-INSTALLATION
-------------
+![Testomatic v2.0](Images/Testomatic-v2.jpeg)
+
+The v2.0 **Testomatic PCB**:
+
+![Testomatic PCB annotated](Images/Testomatic-PCB-annotated.jpeg)
+
+The **Testomatic PCB** fits into a laser-cut chassis with various other
+parts:
+
+![Testomatic structure](Images/Testomatic-structure-annotated.jpeg)
+
+**Test Modules** are built around a **Test Pin Carrier Board (TPCB)** which
+uses a card edge connector commonly used for PCI to pass signals
+between the Testomatic system and the test pins:
+
+![Test Pin Carrier Board ](Images/Testomatic-TPCB-annotated.jpeg)
+
+A reference design for the TPCB has been created as a starting point for making DUT-specific versions.
+
+## Features
+* 24 x 5V GPIOs.
+* 16 x 5V 16-bit ADCs (8 currently implemented).
+* 16 x 5V DACs (4 currently implemented).
+* 4-port USB hub passed up to test module.
+* SPI and I2C passed up to test module.
+* Pi HAT EEPROM on Testomatic PCB for compliance with HAT automatic configuration.
+* I2C EEPROM can be placed on Test Module to allow Testomatic to automatically identify which module is loaded.
+* 5V power supply dedicated to Raspberry Pi independently of the DUT.
+* 5V power supply with current sensing dedicated to DUT.
+* 3V3 power supply with current sensing dedicated to DUT.
+* VIN is passed to DUT with current sensing.
+* Independent relay control of all 3 power rails to DUT.
+* Support for an external button, such as a foot switch for control of test start.
+* 1024 x 600 capacitive touchscreen.
+* USB hub mounted in chassis for external connection of receipt printer, barcode scanner, keyboard, etc.
+* Support for a 32-24 pixel thermal camera that can be mounted externally for capturing thermal images of the DUT.
+
+## Expansion
+Simple tests can be done with the included I/O pins, but many DUTs will require more specific connections. Because the Test Module has SPI, I2C, and USB available, you can build your own custom circuitry directly into the Test Pin Carrier Board. This could include:
+
+* USB-to-Serial converters
+* CAN bus interfaces
+* RS485 interfaces
+* Dummy loads (either onboard or external)
+* Light sensors
+* Signal generators
+* Programmable power supplies
+
+To simplify this process for common tests, we have begun creating small modules that can be added quickly to the design of your Test Pin Carrier Board to save you doing this yourself. These modules include:
+
+ * USB-to-Serial (complete)
+ * CAN bus (under development)
+
+## Installation
 Schematic and PCB were created in Fusion360 and exported as EAGLE format,
 which can be imported back into Fusion360 or various other packages.
 
 
-CREDITS
--------
-Designed by Jonathan Oxer <jon@oxer.com.au>
+## Credits
+Designed by Jonathan Oxer <jon@oxer.com.au> with the assistance of many members of the SuperHouse Discord.
 
 
-DISTRIBUTION
-------------
+## Distribution
 The specific terms of distribution of this project are governed by the
 license referenced below.
 
 
-LICENSE
--------
+## License
 Licensed under the TAPR Open Hardware License (www.tapr.org/OHL).
 The "license" folder within this repository also contains a copy of
 this license in plain text format.
