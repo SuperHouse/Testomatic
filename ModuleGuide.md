@@ -1,9 +1,14 @@
-= Creating a Test Module
+Creating a Test Module
+======================
 
 The Test Module supports the DUT mechanically, and connects it electrically
 to the test system.
 
-== Laser-cut frame
+## Test Pin Carrier Board (TPCB)
+
+To do: Notes here about designing your TPCB.
+
+## Laser-cut frame
 
 1. Open "Module Plate Template" in Fusion360.
 2. Open "Modify" -> "Parameters".
