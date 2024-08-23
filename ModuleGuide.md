@@ -13,7 +13,7 @@ To do: Notes here about designing your TPCB.
 1. Open "Module Plate Template" in Fusion360.
 2. Open "Modify" -> "Parameters".
 
-![Module parameters](Images/Testomatic-Module-Guide.002.jpeg)
+![Module parameters](Images/Testomatic-Module-Guide.004.jpeg)
 
 3. Set "DUTWidth" to the horizontal width of your DUT.
 4. Set "DUTLength" to the front-back length of your DUT.
@@ -24,7 +24,7 @@ To do: Notes here about designing your TPCB.
 9. Turn on only Bodies -> Top Plate, select top surface, and save as DXF for lasercutting.
 10. Turn on only Bodies -> Bottom Plate, select top surface, and save as DXF for lasercutting.
 
-![Export for lasercutting](Images/Testomatic-Module-Guide.004.jpeg)
+![Export for lasercutting](Images/Testomatic-Module-Guide.002.jpeg)
 
 11. Laser-cut both parts using 4.5mm acrylic. The thickness of the bottom plate is critical to set the vertical alignment of the connector.
 12. Bolt the Top Plate and the Bottom Plate together using M2 bolts. You can optionally countersink them for a smooth top surface.
