@@ -4,6 +4,8 @@ Creating a Test Module
 The Test Module supports the DUT mechanically, and connects it electrically
 to the test system.
 
+![Test module](Images/Test-module-top.png)
+
 ## Test Pin Carrier Board (TPCB)
 
 To do: Notes here about designing your TPCB.
