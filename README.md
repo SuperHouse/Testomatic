@@ -7,18 +7,18 @@ Testomatic is an open-source PCB test jig system with several goals:
 
 1. Minimise reinvention when creating a test jig for a new **Device
 Under Test (DUT)**.
-2. Provide enough built-in I/O to make the majority of tests easy, with
-expandability to make harder tests possible.
+2. Provide enough built-in I/O to **make the majority of tests easy**, with
+expandability to **make harder tests possible**.
 3. Allow the chassis to be quickly reused for multiple DUTs, with
 each DUT having its own **Test Module**.
-4. Integration with an external test management / logging platform for storage of test results.
+4. Integration with an **external test management / logging platform** for centralised storage of test results from one or more testers.
 
 Testomatic is based around a Raspberry Pi, with a special PCB to provide additional I/O and protect the PI from faults that may occur on the DUT. It uses removable Test Modules that provide the mechanical and electrical connection to each specific DUT. Currently we're using a simple Python testrunner script which has support for definition of multiple target boards, and can be controlled via the touchscreen using a control panel created using Node-RED Dasboard v2.
 
 This is definitely a work in progress and the design is rapidly
 developing. Most development and discussion of this project has taken
-place on SuperHouseTV livestreams on YouTube, and on the SuperHouse
-Discord server.
+place on [SuperHouseTV livestreams](https://www.youtube.com/superhousetv) on YouTube, and on the [SuperHouse
+Discord](https://www.superhouse.tv/discord/).
 
 The first v1.0 system used a Raspberry Pi Pico as an I/O expander but this structure has now been superceded:
 
