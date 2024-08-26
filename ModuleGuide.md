@@ -4,6 +4,9 @@ Creating a Test Module
 The Test Module supports the DUT mechanically, and connects it electrically
 to the test system.
 
+You need to create one test module for each type of device that you wish to test. Test modules
+can be swapped out as required.
+
 ![Test module](Images/Test-module-top.png)
 
 ## Test Pin Carrier Board (TPCB)

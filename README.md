@@ -13,7 +13,7 @@ expandability to **make harder tests possible**.
 each DUT having its own **Test Module**.
 4. Integration with an **external test management / logging platform** for centralised storage of test results from one or more testers.
 
-Testomatic is based around a Raspberry Pi, with a special PCB to provide additional I/O and protect the PI from faults that may occur on the DUT. It uses removable Test Modules that provide the mechanical and electrical connection to each specific DUT. Currently we're using a simple Python testrunner script which has support for definition of multiple target boards, and can be controlled via the touchscreen using a control panel created using Node-RED Dasboard v2.
+Testomatic is based around a Raspberry Pi, with a special PCB to provide additional I/O and protect the Pi from faults that may occur on the DUT. It uses removable Test Modules that provide the mechanical and electrical connection to each specific DUT. Currently we're using a simple Python testrunner script which has support for definition of multiple target boards, and can be controlled via the touchscreen using a control panel created using Node-RED Dasboard v2.
 
 This is definitely a work in progress and the design is rapidly
 developing. Most development and discussion of this project has taken
@@ -81,7 +81,7 @@ To simplify this process for common tests, we have begun creating small modules 
 
 ## Installation
 Schematic and PCB were created in Fusion360 and exported as EAGLE format,
-which can be imported back into Fusion360 or various other packages.
+which can be imported back into Fusion360 or various other packages including KiCAD..
 
 
 ## Credits
