@@ -7,3 +7,6 @@ Testomatic To Do
  * Length-match USB traces.
  * Add solder wicking area beside USB mechanical holes
  * Add bolt holes to XT60 footprint for panel mount version of connector (maybe)
+ * Connector for RGB LED strip to illuminate enclosure.
+ * Blatantly steal Austin's Smart Hub design
+ * Solder-nuts on PCB to avoid standoffs. Thanks Austin!
