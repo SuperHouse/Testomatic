@@ -1,6 +1,59 @@
 Notes
 =====
 
+
+To validate:
+
+ * [OK] INA260 current sensors (Using library)
+ * [OK] MCP23017 I/O expanders (Using Blinka)
+ * [OK] Piezo beeper
+ * MCP4728 DAC
+ * ADS1115 ADC
+ * CAT24C32 EEPROM (Test Module, on I2C bus 1)
+ * CAT24C32 EEPROM (HAT, on I2C bus 0)
+
+
+=== INA260 current sensors
+
+https://pypi.org/project/ina260/
+
+pip install ina260
+
+from ina260.controller import Controller
+c = Controller(address=0x40)
+print(c.voltage())
+print(c.current())
+print(c.power()))
+
+
+=== MCP23017 I/O expanders
+
+Use Adafruit Blinka for CP style access to MCP23017 from within Python:
+
+https://learn.adafruit.com/using-mcp23008-mcp23017-with-circuitpython/python-circuitpython#python-installation-of-mcp230xx-library-3005480
+
+Created a test script called mcp-test.py
+
+Pullup example:
+
+    pin1.direction = digitalio.Direction.INPUT
+    pin1.pull = digitalio.Pull.UP
+
+
+
+=== DUT Power Control
+pinctrl 17 op dh   // Turn on VIN
+pinctrl 27 op dh   // Turn on 5V
+pinctrl 22 op dh   // Turn on 3.3V
+
+
+=== Piezo control
+pinctrl 23 op dh   // Turn on piezo
+pinctrl 23 op dl   // Turn off piezo
+
+
+
+
 Brother label printer on Linux: [https://github.com/HenrikBengtsson/brother-ptouch-label-printer-on-linux]()
 
 For CAN:
@@ -83,6 +136,55 @@ Update system and install Vim:
     sudo apt update
     sudo apt dist-upgrade
     sudo apt install vim
+
+Install node-red
+
+Go to http://tester3.local:1880/
+
+Install the palette item "node-red-contrib-ip"
+Install the palette item "@flowfuse/node-red-dashboard"
+
+sudo apt install pipx
+pipx install esptool
+
+
+
+Kiosk tutorial: https://www.raspberrypi.com/tutorials/how-to-use-a-raspberry-pi-in-kiosk-mode/
+
+#sudo apt install wtype
+sudo apt install chromium-browser
+
+sudo vim .config/wayfire.ini
+
+Add this new section:
+
+[autostart]
+chromium = chromium-browser http://localhost:1880/dashboard/page1 --kiosk --noerrdialogs --disable-infobars --no-first-run --ozone-platform=wayland --enable-features=OverlayScrollbar --start-maximized
+
+
+
+
+
+
+
+
+
+
+    sudo apt install chromium-browser
+
+Add to /etc/xdg/lxsession/LXDE-pi/autostart:
+
+@xset s off
+@xset -dpms
+@xset s noblank
+@chromium-browser --noerrdialogs --disable-infobars --kiosk https://localhost:1880/dashboard/page1
+
+
+
+
+
+
+
 
 edit /boot/firmware/config.txt and find this line:
 

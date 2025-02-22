@@ -13,7 +13,7 @@ expandability to **make harder tests possible**.
 each DUT having its own **Test Module**.
 4. Integration with an **external test management / logging platform** for centralised storage of test results from one or more testers.
 
-Testomatic is based around a Raspberry Pi, with a special PCB to provide additional I/O and protect the Pi from faults that may occur on the DUT. It uses removable Test Modules that provide the mechanical and electrical connection to each specific DUT. Currently we're using a simple Python testrunner script which has support for definition of multiple target boards, and can be controlled via the touchscreen using a control panel created using Node-RED Dasboard v2.
+Testomatic is based around a Raspberry Pi, with a special PCB to provide additional I/O and protect the Pi from faults that may occur on the DUT. It uses removable Test Modules that provide the mechanical and electrical connection to each specific DUT. Currently we're using a simple Python testrunner script which has support for definition of multiple target boards, and can be controlled via the touchscreen using a control panel created using Node-RED Dashboard v2.
 
 This is definitely a work in progress and the design is rapidly
 developing. Most development and discussion of this project has taken
@@ -30,7 +30,7 @@ The newer v2.0 system is still in development and uses a vertically-mounted PCB 
 
 The v2.0 **Testomatic PCB**:
 
-![Testomatic PCB annotated](Images/Testomatic-PCB-annotated.jpeg)
+![Testomatic PCB annotated](Images/Testomatic-v2_2-PCB-annotated.jpeg)
 
 The **Testomatic PCB** fits into a laser-cut chassis with various other
 parts:
@@ -46,10 +46,10 @@ between the Testomatic system and the test pins:
 A reference design for the TPCB has been created as a starting point for making DUT-specific versions.
 
 ## Features
-* 24 x 3V3 GPIOs.
-* 16 x 0-5V 16-bit ADCs (8 currently implemented).
-* 16 x 0-5V DACs (4 currently implemented).
-* 4-port USB hub passed up to test module.
+* 56 GPIOs grouped as 7 blocks, each with 8 pins.
+* Each GPIO block can be configured for 3.3V or 5V I/O.
+* Each GPIO pin can be digital input, digital output, 12-bit ADC, or 12-bit DAC.
+* 4-port USB hub with all 4 ports passed up to the test module.
 * SPI and I2C passed up to test module.
 * Pi HAT EEPROM on Testomatic PCB for compliance with HAT automatic configuration.
 * I2C EEPROM can be placed on Test Module to allow Testomatic to automatically identify which module is loaded.
@@ -58,10 +58,10 @@ A reference design for the TPCB has been created as a starting point for making 
 * 3V3 power supply with current sensing dedicated to DUT.
 * VIN is passed to DUT with current sensing.
 * Independent relay control of all 3 power rails to DUT.
-* Support for an external button, such as a foot switch for control of test start.
 * 1024 x 600 capacitive touchscreen.
 * USB hub mounted in chassis for external connection of receipt printer, barcode scanner, keyboard, etc.
 * Support for a 32-24 pixel thermal camera that can be mounted externally for capturing thermal images of the DUT.
+* Support for an external button, such as a foot switch for control of test start.
 
 ## Expansion
 Simple tests can be done with the included I/O pins, but many DUTs will require more specific connections. Because the Test Module has SPI, I2C, and USB available, you can build your own custom circuitry directly into the Test Pin Carrier Board. This could include:
@@ -77,11 +77,11 @@ Simple tests can be done with the included I/O pins, but many DUTs will require 
 To simplify this process for common tests, we have begun creating small modules that can be added quickly to the design of your Test Pin Carrier Board to save you doing this yourself. These modules include:
 
  * USB-to-Serial (complete)
- * CAN bus (under development)
+ * CAN bus (complete)
 
 ## Installation
 Schematic and PCB were created in Fusion360 and exported as EAGLE format,
-which can be imported back into Fusion360 or various other packages including KiCAD..
+which can be imported back into Fusion360 or various other packages including KiCAD.
 
 
 ## Credits
