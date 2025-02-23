@@ -1,6 +1,10 @@
 Notes
 =====
 
+To allow Node-RED to shut down the Pi:
+
+https://flows.nodered.org/node/node-red-contrib-rpi-shutdown
+
 
 To validate:
 
