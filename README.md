@@ -26,13 +26,13 @@ The first v1.0 system used a Raspberry Pi Pico as an I/O expander but this struc
 
 The newer v2 system is still in development and uses a vertically-mounted PCB with a card edge connector for bridging between the Raspberry Pi and the Test Module:
 
-![Testomatic v2.2 PCB](Images/Testomatic-v2_2-pcb-oblique.jpg)
-
 ![Testomatic v2.0](Images/Testomatic-v2-side-open.jpg)
 
 The v2.2 **Testomatic PCB**:
 
-![Testomatic PCB annotated](Images/Testomatic-v2_2-PCB-annotated.jpg)
+![Testomatic v2.2 PCB](Images/Testomatic-v2_2-pcb-oblique.jpg)
+
+![Testomatic PCB annotated](Images/Testomatic-v2_2-PCB-annotated.jpeg)
 
 The **Testomatic PCB** fits into a laser-cut chassis with various other
 parts:
