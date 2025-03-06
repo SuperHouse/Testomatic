@@ -24,13 +24,15 @@ The first v1.0 system used a Raspberry Pi Pico as an I/O expander but this struc
 
 ![Prototype test jig](Images/Test-jig.jpg)
 
-The newer v2.0 system is still in development and uses a vertically-mounted PCB with a card edge connector for bridging between the Raspberry Pi and the Test Module:
+The newer v2 system is still in development and uses a vertically-mounted PCB with a card edge connector for bridging between the Raspberry Pi and the Test Module:
+
+![Testomatic v2.2 PCB](Images/Testomatic-v2_2-pcb-oblique.jpg)
 
 ![Testomatic v2.0](Images/Testomatic-v2-side-open.jpg)
 
-The v2.0 **Testomatic PCB**:
+The v2.2 **Testomatic PCB**:
 
-![Testomatic PCB annotated](Images/Testomatic-v2_2-PCB-annotated.jpeg)
+![Testomatic PCB annotated](Images/Testomatic-v2_2-PCB-annotated.jpg)
 
 The **Testomatic PCB** fits into a laser-cut chassis with various other
 parts:
@@ -76,8 +78,8 @@ Simple tests can be done with the included I/O pins, but many DUTs will require 
 
 To simplify this process for common tests, we have begun creating small modules that can be added quickly to the design of your Test Pin Carrier Board to save you doing this yourself. These modules include:
 
- * USB-to-Serial (complete)
- * CAN bus (complete)
+ * [USB-to-Serial / ESPFlasher](https://github.com/SuperHouse/ESPFMOD) (complete)
+ * [CAN bus](https://github.com/SuperHouse/CANMOD) (complete)
 
 ## Installation
 Schematic and PCB were created in Fusion360 and exported as EAGLE format,
