@@ -1,0 +1,45 @@
+Tenma DC load
+=============
+
+Resources:
+https://jcastellssala.com/2017/10/31/tenma72-2540-linux-control/
+
+https://github.com/kxtells/tenma-serial/
+
+
+Check EEVBlog Korad KEL103 (Tenma is rebranded)
+
+
+
+Network port is 18190, but doesn't respond on telnet or SSH. Could be UDP server?
+
+If you set a parameter (Amps, Volts, etc) it goes into the matching mode, so:
+
+:VOLT 9.8V
+
+will change to constant voltage mode and set it to 9.8V.
+
+
+Verified commands:
+
+Measurement:
+:STAT?
+:MEAS:CURR?
+:MEAS:VOLT?
+:MEAS:POW?
+:FUNC?       // Returns CC, CV, 
+:POW?
+:VOLT?
+:CURR?
+:INP?        // Returns ON or OFF
+
+System Config:
+:SYST:IPAD?  // Returns IP address
+:SYST:DHCP?  // Not sure if this means anything
+:SYST:DHCP 1  or ON (Maybe one of these worked?)
+
+Setting:
+:CURR 0.3A
+:INP [ON|OFF]
+:FUNC [CC|CV|CW|CR]
+:FUNC CC
