@@ -65,6 +65,14 @@ A reference design for the TPCB has been created as a starting point for making 
 * Support for a 32-24 pixel thermal camera that can be mounted externally for capturing thermal images of the DUT.
 * Support for an external button, such as a foot switch for control of test start.
 
+## I/O Modules
+
+Each block of 8 I/O pins is exposed on an I/O Module header, in 2mm pitch DIP format. This allows the use of different I/O modules to suit your needs. A generic I/O Module has been designed based on the AD5593R I2C I/O expander chip. Any pin on this module can be configured to be a digital input or output, analog input, or analog output.
+
+Details of the module are available at ![github.com/SuperHouse/IOMOD](https://github.com/SuperHouse/IOMOD)
+
+The plan is to create other modules with different capabilities if required.
+
 ## Expansion
 Simple tests can be done with the included I/O pins, but many DUTs will require more specific connections. Because the Test Module has SPI, I2C, and USB available, you can build your own custom circuitry directly into the Test Pin Carrier Board. This could include:
 
