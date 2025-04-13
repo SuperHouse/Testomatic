@@ -69,7 +69,7 @@ A reference design for the TPCB has been created as a starting point for making 
 
 Each block of 8 I/O pins is exposed on an I/O Module header, in 2mm pitch DIP format. This allows the use of different I/O modules to suit your needs. A generic I/O Module has been designed based on the AD5593R I2C I/O expander chip. Any pin on this module can be configured to be a digital input or output, analog input, or analog output.
 
-Details of the module are available at ![github.com/SuperHouse/IOMOD](https://github.com/SuperHouse/IOMOD)
+Details of the module are available at [github.com/SuperHouse/IOMOD](https://github.com/SuperHouse/IOMOD)
 
 The plan is to create other modules with different capabilities if required.
 
