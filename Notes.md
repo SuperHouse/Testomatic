@@ -1,36 +1,46 @@
-Notes
-=====
+# Notes
+
+To validate:
+
+ * [OK] TUSB2046 USB hub
+ * [OK] DUT power control: VIN, 5V, 3V3
+ * [OK] INA260 current sensors (Using library)
+ * [OK] Piezo beeper
+ * [OK] TCA9548 I2C multiplexer
+ * [exists on bus, need to find driver] AD5593R I/O expander
+ * CAT24C32 EEPROM (Test Module, on I2C bus 1)
+ * CAT24C32 EEPROM (HAT, on I2C bus 0)
+
+### TCA9548 I2C multiplexer
+
+https://learn.adafruit.com/adafruit-tca9548a-1-to-8-i2c-multiplexer-breakout/circuitpython-python
+
+### AD5593R I/O expander
+
+https://github.com/101Robotics/AD5593-MicroPython
+
+
+### Pi power control
 
 To allow Node-RED to shut down the Pi:
 
 https://flows.nodered.org/node/node-red-contrib-rpi-shutdown
 
 
-To validate:
-
- * [OK] INA260 current sensors (Using library)
- * [OK] MCP23017 I/O expanders (Using Blinka)
- * [OK] Piezo beeper
- * MCP4728 DAC
- * ADS1115 ADC
- * CAT24C32 EEPROM (Test Module, on I2C bus 1)
- * CAT24C32 EEPROM (HAT, on I2C bus 0)
-
-
-=== INA260 current sensors
+### INA260 current sensors
 
 https://pypi.org/project/ina260/
 
-pip install ina260
+    pip install ina260
+    
+    from ina260.controller import Controller
+    c = Controller(address=0x40)
+    print(c.voltage())
+    print(c.current())
+    print(c.power()))
 
-from ina260.controller import Controller
-c = Controller(address=0x40)
-print(c.voltage())
-print(c.current())
-print(c.power()))
 
-
-=== MCP23017 I/O expanders
+### MCP23017 I/O expanders
 
 Use Adafruit Blinka for CP style access to MCP23017 from within Python:
 
@@ -45,18 +55,27 @@ Pullup example:
 
 
 
-=== DUT Power Control
-pinctrl 17 op dh   // Turn on VIN
-pinctrl 27 op dh   // Turn on 5V
-pinctrl 22 op dh   // Turn on 3.3V
+### DUT Power Control
+    pinctrl 17 op dh   // Turn on VIN
+    pinctrl 27 op dh   // Turn on 5V
+    pinctrl 22 op dh   // Turn on 3.3V
 
 
-=== Piezo control
-pinctrl 23 op dh   // Turn on piezo
-pinctrl 23 op dl   // Turn off piezo
+### Piezo control
+    pinctrl 23 op dh   // Turn on piezo
+    pinctrl 23 op dl   // Turn off piezo
 
 
 
+### Data import
+
+Export spreadsheet from gdocs as XLSX, and scp it to the portal VM.
+
+    cd /var/www/register-test/pyproj
+    . env/bin/activate
+    ./manage.py import-xlsx ~/Device-Serial-Numbers-.xlsx
+
+### Label printer
 
 Brother label printer on Linux: [https://github.com/HenrikBengtsson/brother-ptouch-label-printer-on-linux]()
 
@@ -148,8 +167,8 @@ Go to http://tester3.local:1880/
 Install the palette item "node-red-contrib-ip"
 Install the palette item "@flowfuse/node-red-dashboard"
 
-sudo apt install pipx
-pipx install esptool
+    sudo apt install pipx
+    pipx install esptool
 
 
 
