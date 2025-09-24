@@ -1,7 +1,7 @@
 Testomatic PCB Test Jig System
 ==============================
 
-Copyright 2024 SuperHouse Automation Pty Ltd  [www.superhouse.tv]()
+Copyright 2024-2025 SuperHouse Automation Pty Ltd  [www.superhouse.tv]()
 
 Testomatic is an open-source PCB test jig system with several goals:
 
@@ -28,11 +28,9 @@ The newer v2 system is still in development and uses a vertically-mounted PCB wi
 
 ![Testomatic v2.0](Images/Testomatic-v2-side-open.jpg)
 
-The v2.2 **Testomatic PCB**:
+The v2.3 **Testomatic PCB**:
 
-![Testomatic v2.2 PCB](Images/Testomatic-v2_2-pcb-oblique.jpg)
-
-![Testomatic PCB annotated](Images/Testomatic-v2_2-PCB-annotated.jpeg)
+![Testomatic PCB annotated](Images/Testomatic-v2_3-PCB-annotated.jpeg)
 
 The **Testomatic PCB** fits into a laser-cut chassis with various other
 parts:
