@@ -86,6 +86,7 @@ To simplify this process for common tests, we have begun creating small modules 
 
  * [USB-to-Serial / ESPFlasher](https://github.com/SuperHouse/ESPFMOD) (complete)
  * [CAN bus](https://github.com/SuperHouse/CANMOD) (complete)
+ * [UPDI Programmer / Serial Module](https://github.com/SuperHouse/UPDIMOD)] (designed, not yet validated)
 
 ## Installation
 Schematic and PCB were created in Fusion360 and exported as EAGLE format,
