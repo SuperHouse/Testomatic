@@ -86,7 +86,30 @@ To simplify this process for common tests, we have begun creating small modules 
 
  * [USB-to-Serial / ESPFlasher](https://github.com/SuperHouse/ESPFMOD) (complete)
  * [CAN bus](https://github.com/SuperHouse/CANMOD) (complete)
- * [UPDI Programmer / Serial Module](https://github.com/SuperHouse/UPDIMOD)] (designed, not yet validated)
+ * [UPDI Programmer / Serial Module](https://github.com/SuperHouse/UPDIMOD)] (complete)
+
+## LED Testing
+
+Instead of relying on visual confirmation by an operator, Testomatic can use light sensors to 
+validate correct operation of LEDs. These sensors can detect not only the level of illumination, 
+but also the intensity at different wavelengths to verify that the correct colour of LED has 
+been placed.
+
+The "ColourSensor" directory contains Fusion design files and STLs for 30mm-long shrouds for 
+mounting a VEML3328SL colour sensor, which in turn can be connected via I2C to the Testomatic. 
+
+![Testomatic v2.0](ColourSensor/Shrouds-vertical.png)
+
+Designs are provided to suit 0603 LEDs in both straight and lateral orientations, and 3mm and 
+5mm PTH LEDs.
+
+![Testomatic v2.0](ColourSensor/Shrouds-oblique.png)
+
+The VEML3328SL can be carefully hand-soldered to the ends of thin wires connected to a JST-SH 
+1mm connector for compatibility with Qwiic and Stemma, including breakout boards and multiplexers.
+
+The VEML3328SL has a fixed I2C address of 0x10 so a common approach is to use a TCA9548A or 
+PCA9546A I2C multiplexer to allow multiple colour sensors to be used.
 
 ## Installation
 Schematic and PCB were created in Fusion360 and exported as EAGLE format,
