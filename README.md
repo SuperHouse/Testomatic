@@ -1,7 +1,7 @@
 Testomatic PCB Test Jig System
 ==============================
 
-Copyright 2024-2025 SuperHouse Automation Pty Ltd  [www.superhouse.tv]()
+Copyright 2024-2026 SuperHouse Automation Pty Ltd  [www.superhouse.tv]()
 
 Testomatic is an open-source PCB test jig system with several goals:
 
@@ -20,11 +20,9 @@ developing. Most development and discussion of this project has taken
 place on [SuperHouseTV livestreams](https://www.youtube.com/superhousetv) on YouTube, and on the [SuperHouse
 Discord](https://www.superhouse.tv/discord/).
 
-The first v1.0 system used a Raspberry Pi Pico as an I/O expander but this structure has now been superceded:
+![Prototype test jig](Images/testomatic-on-bench.jpg)
 
-![Prototype test jig](Images/Test-jig.jpg)
-
-The newer v2 system is still in development and uses a vertically-mounted PCB with a card edge connector for bridging between the Raspberry Pi and the Test Module:
+The new v2 system is still in development and uses a vertically-mounted PCB with a card edge connector for bridging between the Raspberry Pi and the Test Module:
 
 ![Testomatic v2.0](Images/Testomatic-v2-side-open.jpg)
 
