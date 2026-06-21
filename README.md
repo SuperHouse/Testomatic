@@ -15,12 +15,17 @@ each DUT having its own **Test Module**.
 
 Testomatic is based around a Raspberry Pi, with a special PCB to provide additional I/O and protect the Pi from faults that may occur on the DUT. It uses removable Test Modules that provide the mechanical and electrical connection to each specific DUT. Currently we're using a simple Python testrunner script which has support for definition of multiple target boards, and can be controlled via the touchscreen using a control panel created using Node-RED Dashboard v2.
 
+![Prototype test jig](Images/testomatic-on-bench.jpg)
+
 This is definitely a work in progress and the design is rapidly
 developing. Most development and discussion of this project has taken
 place on [SuperHouseTV livestreams](https://www.youtube.com/superhousetv) on YouTube, and on the [SuperHouse
 Discord](https://www.superhouse.tv/discord/).
 
-![Prototype test jig](Images/testomatic-on-bench.jpg)
+For an overview of how the project came to be and the design goals, see this 
+presentation from Everything Open 2026:
+
+[![YouTube](Images/testomatic-talk-eo2026.png)](https://www.youtube.com/watch?v=EJt35TPn2Sw)
 
 The new v2 system is still in development and uses a vertically-mounted PCB with a card edge connector for bridging between the Raspberry Pi and the Test Module:
 
