@@ -114,6 +114,20 @@ The VEML3328SL can be carefully hand-soldered to the ends of thin wires connecte
 The VEML3328SL has a fixed I2C address of 0x10 so a common approach is to use a TCA9548A or 
 PCA9546A I2C multiplexer to allow multiple colour sensors to be used.
 
+## Testomatic Circuit Board Register
+
+A closely related project is the Testomatic Circuit Board Register, which is software that 
+provides a central location for storing production and testing data related to printed 
+circuit board assembly (PCBA) services.
+
+You can use Testomatic without the Register, and you can use the Register without Testomatic, 
+but they are being developed in parallel with the intention that they complement each other 
+and integrate smoothly.
+
+Lean more about the Register at [github.com/SuperHouse/register](https://github.com/SuperHouse/register).
+
+[![Testomatic v2.0](Images/register-device-details.png)](https://github.com/SuperHouse/register)
+
 ## Installation
 Schematic and PCB were created in Fusion360 and exported as EAGLE format,
 which can be imported back into Fusion360 or various other packages including KiCAD.

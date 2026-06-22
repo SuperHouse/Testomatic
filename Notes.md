@@ -7,17 +7,150 @@ To validate:
  * [OK] INA260 current sensors (Using library)
  * [OK] Piezo beeper
  * [OK] TCA9548 I2C multiplexer
- * [exists on bus, need to find driver] AD5593R I/O expander
+ * [OK] AD5593R I/O expander
  * CAT24C32 EEPROM (Test Module, on I2C bus 1)
  * CAT24C32 EEPROM (HAT, on I2C bus 0)
 
+
+## Light Box
+
+Logitech Brio MX 4K webcam
+
+sudo apt install fswebcam
+
+To check available resolutions:
+
+v4l2-ctl --list-formats-ext
+
+Must be plugged into USB3 port and detected as a USB3 device to provide 4K res.
+
+fswebcam -r 3840x2160 -p MJPEG --skip 10 test9.jpg
+
+It's only being detected as USB2.0:
+
+lsusb -t
+
+shows 480M (USB2.0) instead of 5000M (USB3.0) even plugged in directly.
+
+According to Gemini, Pi 3B+ only has a shared internal USB2.0 bus, even 
+though it exposes USB3 ports externally! This sucks
+
+Got it working an a Pi 5B with a Comsol USB-A to C cable CMAM12BK
+
+Options like this work, although gain doesn't seem to do anything:
+
+fswebcam -r 3840x2160 -p MJPEG --set brightness=100% --set contrast=60% --set sharpness=80% --set gain=255 --skip 20 test17.jpg
+
+### Stacking images
+
+Script to take a series of pics:
+
+#!/bin/bash
+
+# Create a directory for the images if it doesn't exist
+mkdir -p webcam_images
+cd webcam_images
+
+# Capture 10 images with a 1-second delay between captures
+for i in {1..5}; do
+    echo "Capturing image $i..."
+    # -r specifies resolution, --no-banner removes the timestamp
+    # -S 10 skips the first 10 frames to allow calibration
+    fswebcam -r 3840x2160 -p MJPEG --no-banner --set brightness=80% --set contrast=60% --set sharpness=60% --skip 20 image_$i.jpeg
+    sleep 1
+done
+
+echo "Capture complete."
+
+Install ImageMagick:
+
+sudo apt install imagemagick
+
+Process pics:
+
+magick convert *.jpeg -evaluate-sequence median stacked_image.jpeg
+
+### Printer control
+
+Alternative to using external process and passing it a text file:
+
+https://github.com/python-escpos/python-escpos
+
+### Colour sensing
+
+https://github.com/DevelopiumTech/VEML3328
+
+https://www.digikey.com.au/en/products/detail/vishay-semiconductor-opto-division/VEML3328SL/10673128
+
+https://www.finntestelectronics.com/product/mega-module/
+
+### Writing tests
+
+Use Given - When - Then format? Or AAA?
+
+Use raw Python, or some kind of config? Config is hard! For eg:
+
+---
+## How to format error message with results?
+
+Simple string, then output of all "then" lines?
+
+
+object:
+  title: 5V power rail
+  abort_on_fail: true
+  fail_message: 5V power rail out of spec
+  given:
+    - 5v: true
+    - boolean: true
+  when:
+    - 5v: true
+    - delay: 100ms
+  then:
+    - analogread a5: 4.7 - 5.1
+    
+object:
+  title: 3V3 power rail
+  abort_on_fail: true
+  fail_message: 3V3 power rail out of spec
+  given:
+    - 5v: true
+    - boolean: true
+  when:
+    - 5v: true
+    - delay: 100ms
+  then:
+    - analogread a6: 2.9 - 3.4
+
+
+
 ### TCA9548 I2C multiplexer
 
+Needs Blinka installed:
+
+https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
+
+    sudo apt-get update
+    sudo apt-get -y upgrade
+    sudo apt-get install -y python3-pip
+
+    pip install rpi-lgpio
+
 https://learn.adafruit.com/adafruit-tca9548a-1-to-8-i2c-multiplexer-breakout/circuitpython-python
+
+    sudo pip3 install adafruit-circuitpython-tca9548a
+    
 
 ### AD5593R I/O expander
 
 https://github.com/101Robotics/AD5593-MicroPython
+
+https://learn.adafruit.com/adafruit-ad5693r-16-bit-dac-breakout-board/circuitpython-and-python
+
+    python -m venv venv
+    source venv/bin/activate
+    pip install adafruit-circuitpython-ad569x
+    pip install lgpio
 
 
 ### Pi power control
@@ -174,10 +307,10 @@ Install the palette item "@flowfuse/node-red-dashboard"
 
 Kiosk tutorial: https://www.raspberrypi.com/tutorials/how-to-use-a-raspberry-pi-in-kiosk-mode/
 
-#sudo apt install wtype
-sudo apt install chromium-browser
+    sudo apt install wtype
+    sudo apt install chromium-browser
 
-sudo vim .config/wayfire.ini
+    sudo vim .config/wayfire.ini
 
 Add this new section:
 
@@ -206,7 +339,7 @@ Add to /etc/xdg/lxsession/LXDE-pi/autostart:
 
 
 
-
+## Enable Screen
 
 
 edit /boot/firmware/config.txt and find this line:
@@ -217,7 +350,21 @@ Replace it with:
 
     dtoverlay = vc4-fkms-v3d
 
+    sudo vim /boot/firmware/config.txt
+    
+Add these lines to the end:
+
+    hdmi_force_hotplug=1
+    max_usb_current=1
+    hdmi_group=2
+    hdmi_mode=1
+    hdmi_mode=87
+    hdmi_cvt 1024 600 60 6 0 0 0
+    hdmi_drive=1
+
 Elecrow 7" touchscreen setup: [https://www.elecrow.com/rc070p-7-inch-1024x600-raspberry-pi-monitor-touchscreen-capacitive-ips-display-with-built-in-speaker-stand.html](https://www.elecrow.com/rc070p-7-inch-1024x600-raspberry-pi-monitor-touchscreen-capacitive-ips-display-with-built-in-speaker-stand.html)
+
+## Receipt Printer Driver
 
 copy printer-driver-pos_3.13.11_all.deb to machine
 
@@ -234,6 +381,7 @@ Select the POS-80.
 On the printer type page, select Make -> POS
 Select Model -> POS-80 (en)
 
+## Install Software
 
 Copy over test software directory.
 
