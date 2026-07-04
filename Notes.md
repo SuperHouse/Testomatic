@@ -1,6 +1,39 @@
 # Notes
 
-To validate:
+## Sources Of Inspiration
+
+### Thea's tester
+
+ * [https://twitter.com/theavalkyrie/status/1552714810038657025]()
+ * [https://github.com/wntrblm/Hubble]()
+
+### OpenHTF
+
+ * [https://www.openhtf.com/]()
+
+### Gundam
+
+Steven's tester for Opulo. This has been mentioned on various livestreams 
+etc and the intention seems to be for it to be released as open source, but 
+so far I can't find it anywhere. It's referenced in Opulo docs such as here: 
+
+ * [https://ohai.opulo.io/feeder8/oqc/]()
+
+### qabench htf
+
+Looks like a purely commercial offering and I can't find source anywhere. 
+Seems to support a large collection of hardware devices.
+
+ * [https://docs.hilster.io/htf/latest/#]()
+
+### Awesome Hardware Test
+
+A massive list of projects. No point reproducing it here!
+
+ * [https://github.com/sschaetz/awesome-hardware-test]()
+
+
+## To Validate
 
  * [OK] TUSB2046 USB hub
  * [OK] DUT power control: VIN, 5V, 3V3
@@ -47,11 +80,11 @@ Script to take a series of pics:
 
 #!/bin/bash
 
-# Create a directory for the images if it doesn't exist
+### Create a directory for the images if it doesn't exist
 mkdir -p webcam_images
 cd webcam_images
 
-# Capture 10 images with a 1-second delay between captures
+### Capture 10 images with a 1-second delay between captures
 for i in {1..5}; do
     echo "Capturing image $i..."
     # -r specifies resolution, --no-banner removes the timestamp
@@ -70,13 +103,13 @@ Process pics:
 
 magick convert *.jpeg -evaluate-sequence median stacked_image.jpeg
 
-### Printer control
+## Printer control
 
 Alternative to using external process and passing it a text file:
 
 https://github.com/python-escpos/python-escpos
 
-### Colour sensing
+## Colour sensing
 
 https://github.com/DevelopiumTech/VEML3328
 
@@ -84,17 +117,15 @@ https://www.digikey.com.au/en/products/detail/vishay-semiconductor-opto-division
 
 https://www.finntestelectronics.com/product/mega-module/
 
-### Writing tests
+## Writing tests
 
 Use Given - When - Then format? Or AAA?
 
 Use raw Python, or some kind of config? Config is hard! For eg:
 
----
 ## How to format error message with results?
 
 Simple string, then output of all "then" lines?
-
 
 object:
   title: 5V power rail
@@ -124,7 +155,7 @@ object:
 
 
 
-### TCA9548 I2C multiplexer
+## TCA9548 I2C multiplexer
 
 Needs Blinka installed:
 
@@ -141,7 +172,7 @@ https://learn.adafruit.com/adafruit-tca9548a-1-to-8-i2c-multiplexer-breakout/cir
     sudo pip3 install adafruit-circuitpython-tca9548a
     
 
-### AD5593R I/O expander
+## AD5593R I/O expander
 
 https://github.com/101Robotics/AD5593-MicroPython
 
@@ -153,14 +184,14 @@ https://learn.adafruit.com/adafruit-ad5693r-16-bit-dac-breakout-board/circuitpyt
     pip install lgpio
 
 
-### Pi power control
+## Pi power control
 
 To allow Node-RED to shut down the Pi:
 
 https://flows.nodered.org/node/node-red-contrib-rpi-shutdown
 
 
-### INA260 current sensors
+## INA260 current sensors
 
 https://pypi.org/project/ina260/
 
@@ -173,7 +204,7 @@ https://pypi.org/project/ina260/
     print(c.power()))
 
 
-### MCP23017 I/O expanders
+## MCP23017 I/O expanders
 
 Use Adafruit Blinka for CP style access to MCP23017 from within Python:
 
@@ -188,19 +219,19 @@ Pullup example:
 
 
 
-### DUT Power Control
+## DUT Power Control
     pinctrl 17 op dh   // Turn on VIN
     pinctrl 27 op dh   // Turn on 5V
     pinctrl 22 op dh   // Turn on 3.3V
 
 
-### Piezo control
+## Piezo control
     pinctrl 23 op dh   // Turn on piezo
     pinctrl 23 op dl   // Turn off piezo
 
 
 
-### Data import
+## Data import
 
 Export spreadsheet from gdocs as XLSX, and scp it to the portal VM.
 
@@ -208,7 +239,7 @@ Export spreadsheet from gdocs as XLSX, and scp it to the portal VM.
     . env/bin/activate
     ./manage.py import-xlsx ~/Device-Serial-Numbers-.xlsx
 
-### Label printer
+## Label printer
 
 Brother label printer on Linux: [https://github.com/HenrikBengtsson/brother-ptouch-label-printer-on-linux]()
 
@@ -255,12 +286,6 @@ Thermal camera for Raspberry Pi:
 
 [https://www.flir.com.au/developer/lepton-integration/lepton-integration-raspberry-pi/]()
 
-Thea's tester:
-
-[https://twitter.com/theavalkyrie/status/1552714810038657025]()
-
-[https://github.com/wntrblm/Hubble]()
-
 Capturing from Raspberry Pi cam:
 
     raspistill -st -t 200 -o image.jpg
@@ -268,8 +293,7 @@ Capturing from Raspberry Pi cam:
 
 
 
-Process
-=======
+## Process
 
 Install Raspberry Pi OS 64-bit. Edit the settings:
 
@@ -339,7 +363,7 @@ Add to /etc/xdg/lxsession/LXDE-pi/autostart:
 
 
 
-## Enable Screen
+### Enable Screen
 
 
 edit /boot/firmware/config.txt and find this line:
@@ -364,7 +388,7 @@ Add these lines to the end:
 
 Elecrow 7" touchscreen setup: [https://www.elecrow.com/rc070p-7-inch-1024x600-raspberry-pi-monitor-touchscreen-capacitive-ips-display-with-built-in-speaker-stand.html](https://www.elecrow.com/rc070p-7-inch-1024x600-raspberry-pi-monitor-touchscreen-capacitive-ips-display-with-built-in-speaker-stand.html)
 
-## Receipt Printer Driver
+### Receipt Printer Driver
 
 copy printer-driver-pos_3.13.11_all.deb to machine
 
@@ -381,7 +405,7 @@ Select the POS-80.
 On the printer type page, select Make -> POS
 Select Model -> POS-80 (en)
 
-## Install Software
+### Install Software
 
 Copy over test software directory.
 
