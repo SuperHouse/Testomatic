@@ -1,0 +1,10 @@
+[project]
+name = "testomatic"
+version = "0.1.0"
+description = "Testomatic is an open-source PCB test jig system."
+authors = [
+  {name = "Jonathan Oxer and Elena Williams"}
+]
+maintainers = [
+  {name = "Jonathan Oxer and Elena Williams"}
+]
