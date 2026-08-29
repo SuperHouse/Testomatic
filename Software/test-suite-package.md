@@ -1,29 +1,48 @@
-# Test Suite Export Format
+# Test Suite Package Format
 
 A Test Suite is the ordered list of Test Steps and Manual Checks for a
-[Design](../user-guide/designs.md). You can download a Test Suite as a single JSON file. This
-page describes that JSON format. Use it to build external tools, such as a Testomatic tester,
-that read or write Test Suites.
+[Design](../user-guide/designs.md). You can download a Test Suite as a **Test Suite Package**: a
+ZIP archive containing the Test Suite Definition plus any other files it needs to run (for
+example, firmware binaries for `UPLOAD_FIRMWARE` steps). This page describes the package layout
+and the Test Suite Definition JSON format inside it. Use it to build external tools, such as a
+Testomatic tester, that read or write Test Suites.
 
-## Downloading a Test Suite
+## Downloading a Test Suite Package
 
-Only staff users can download a Test Suite. To download one, open the Design detail page and go
-to the **Test Suite** tab. Click **Download**.
+Only staff users can download a Test Suite Package. To download one, open the Design detail page
+and go to the **Test Suite** tab. Click **Download**.
 
 The download contains the version shown on the tab. This is the draft version if one exists. If
 not, it is the current saved version.
 
-The filename follows this pattern:
+The package filename follows this pattern:
 
 ```
-{sku}-hw{hw_version}-test-suite-v{version}.json
+{sku}-hw{hw_version}-test-suite-v{version}.zip
 ```
 
-For example, `abc123-hw1-0-test-suite-v3.json`.
+For example, `abc123-hw1-0-test-suite-v3.zip`. (This is the same pattern the JSON file used
+before it moved inside a ZIP archive — only the extension changed, from `.json` to `.zip`.)
 
-## Envelope structure
+## Package contents
 
-The file is a single JSON object with four top-level keys:
+At minimum, a Test Suite Package contains one file, at the root of the archive:
+
+```
+test-suite-definition.json
+```
+
+This is the **Test Suite Definition** — a single JSON document listing the Test Suite's steps and
+manual checks. Its format is described below, under
+[Test Suite Definition format](#test-suite-definition-format).
+
+A package may also contain other files that `test_steps` reference by filename — for example, a
+firmware binary named by an `UPLOAD_FIRMWARE` step's `firmware_file` field. A consumer resolves
+those filenames relative to the package root (see [Example](#example) below).
+
+## Test Suite Definition format
+
+`test-suite-definition.json` is a single JSON object with four top-level keys:
 
 ```json
 {
@@ -72,7 +91,7 @@ shape, regardless of type:
 | `order` | integer | Position within the suite (ascending) |
 | `step_type` | string | One of the step type codes listed below |
 | `name` | string | The step's display name |
-| `hard_fail` | boolean | If `true`, a failure of this step stops the rest of the suite |
+| `abort_on_fail` | boolean | If `true`, a failure of this step stops the rest of the suite |
 | `config_schema_version` | integer or `null` | The schema version of `config` below (`null` if the step predates schema versioning) |
 | `config` | object | Type-specific configuration fields. See [Test Step types](#test-step-types) below |
 
@@ -113,7 +132,7 @@ Uploads a firmware image to the device under test.
 |---|---|---|---|
 | `upload_tool` | string | Yes | One of `avrdude`, `esptool.py`, `openocd`, `stm32cubeprogrammer` |
 | `port` | string | Yes | Serial port / device identifier |
-| `firmware_file` | string | Yes | Firmware binary filename |
+| `firmware_file` | string | Yes | Firmware binary filename, resolved relative to the Test Suite Package root |
 
 ### `BEEP`
 
@@ -230,6 +249,16 @@ types, it does not take an automated reading.
 
 ## Example
 
+A Test Suite Package for a board with an `UPLOAD_FIRMWARE` step unzips to:
+
+```
+abc123-hw1-0-test-suite-v3.zip
+├── test-suite-definition.json
+└── main.hex
+```
+
+`test-suite-definition.json`:
+
 ```json
 {
   "export_schema_version": 1,
@@ -250,23 +279,36 @@ types, it does not take an automated reading.
       "order": 1,
       "step_type": "DELAY",
       "name": "Settle",
-      "hard_fail": false,
+      "abort_on_fail": false,
       "config_schema_version": 1,
       "config": { "schema_version": 1, "delay_ms": 250 }
     },
     {
       "order": 2,
+      "step_type": "UPLOAD_FIRMWARE",
+      "name": "Program microcontroller",
+      "abort_on_fail": true,
+      "config_schema_version": 1,
+      "config": {
+        "schema_version": 1,
+        "upload_tool": "avrdude",
+        "port": "/dev/ttyUSB0",
+        "firmware_file": "main.hex"
+      }
+    },
+    {
+      "order": 3,
       "step_type": "READ_RAIL_VOLTAGE",
       "name": "Check 5V rail",
-      "hard_fail": true,
+      "abort_on_fail": true,
       "config_schema_version": 1,
       "config": { "schema_version": 1, "rail": "5V", "min_v": 4.8, "max_v": 5.2 }
     },
     {
-      "order": 3,
+      "order": 4,
       "step_type": "LED_SPECTRAL_READING",
       "name": "Check status LED",
-      "hard_fail": false,
+      "abort_on_fail": false,
       "config_schema_version": 1,
       "config": {
         "schema_version": 1,

@@ -35,7 +35,7 @@ class TestRunner:
             result = self._run_step(step)
             report.outcomes.append(StepOutcome(step=step, result=result))
 
-            if not result.passed and step.hard_fail:
+            if not result.passed and step.abort_on_fail:
                 self._all_rails_off()
                 report.aborted = True
                 break
@@ -54,7 +54,7 @@ class TestRunner:
             return StepResult(passed=False, message=f"{step.step_type} raised: {exc}")
 
     def _all_rails_off(self) -> None:
-        """Safety shutdown on hard-fail: turn off all three power rails unconditionally,
+        """Safety shutdown on abort-on-fail: turn off all three power rails unconditionally,
         regardless of what the runner believes their current state to be.
         """
         power = self.context.chassis.power
@@ -71,7 +71,7 @@ def format_report(report: RunReport, manual_checks: list[ManualCheck]) -> str:
         lines.append(f"[{status}] {outcome.step.name}: {outcome.result.message}")
 
     if report.aborted:
-        lines.append("ABORTED: hard-fail step failed, all power rails turned off")
+        lines.append("ABORTED: abort-on-fail step failed, all power rails turned off")
 
     lines.append("")
     lines.append(f"Result: {'PASS' if report.passed else 'FAIL'}")

@@ -3,7 +3,7 @@
 
 The runner only ever touches a rail because a Test Suite's own CONTROL_POWER_RAIL step told it
 to — see TEST_RUNNER_PLAN.md's "Power rail control is Test-Suite-only" note. The one exception,
-turning every rail off on a hard-fail, lives in `runner.py`, not here.
+turning every rail off on an abort-on-fail, lives in `runner.py`, not here.
 """
 
 from __future__ import annotations

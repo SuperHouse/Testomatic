@@ -1,7 +1,9 @@
-"""Parsing and validation for Test Suite JSON exports.
+"""Parsing and validation for the Test Suite Definition JSON.
 
-Format reference: test-suite-export.md (mirrors the format Register's
-`testing.views._serialize_test_suite` produces).
+Format reference: test-suite-package.md (mirrors the format Register's
+`testing.views._serialize_test_suite` produces). Note this parses the
+`test-suite-definition.json` contents directly — it does not unpack a
+Test Suite Package ZIP; see TEST_RUNNER_PLAN.md.
 """
 
 from __future__ import annotations
@@ -38,7 +40,7 @@ class TestStep:
     order: int
     step_type: str
     name: str
-    hard_fail: bool
+    abort_on_fail: bool
     config_schema_version: int | None
     config: dict
 
@@ -135,7 +137,7 @@ def _parse_test_step(data: dict) -> TestStep:
         order=_require(data, "order"),
         step_type=_require(data, "step_type"),
         name=_require(data, "name"),
-        hard_fail=data.get("hard_fail", False),
+        abort_on_fail=data.get("abort_on_fail", False),
         config_schema_version=config_schema_version,
         config=config,
     )

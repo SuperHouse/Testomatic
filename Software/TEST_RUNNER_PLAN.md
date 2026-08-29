@@ -7,12 +7,18 @@ stubs. Staged implementation — check off phases as they land.
 
 ## Scope for v1
 
-Parse a Test Suite JSON export (format documented in [test-suite-export.md](test-suite-export.md))
-and execute its `test_steps` in order against real hardware via `testomatic-io`
-(`~/Dropbox/src/testomatic-io`), respecting `hard_fail`, and print a pass/fail report.
-`manual_checks` are surfaced to the operator, not executed. Firmware upload and the colour-sensor
-step are stubbed for now (see below) — everything else maps cleanly onto `testomatic-io`'s
-existing API.
+Parse a Test Suite Definition (the `test-suite-definition.json` inside a Test Suite Package —
+format documented in [test-suite-package.md](test-suite-package.md)) and execute its `test_steps`
+in order against real hardware via `testomatic-io` (`~/Dropbox/src/testomatic-io`), respecting
+`abort_on_fail`, and print a pass/fail report. `manual_checks` are surfaced to the operator, not
+executed. Firmware upload and the colour-sensor step are stubbed for now (see below) —
+everything else maps cleanly onto `testomatic-io`'s existing API.
+
+`suite.py`'s `load_suite()` currently takes a path straight to a Test Suite Definition JSON file —
+it does not yet unpack a Test Suite Package ZIP. Now that Register delivers the ZIP (see
+`test-suite-package.md`), extracting `test-suite-definition.json` (and resolving files like
+`UPLOAD_FIRMWARE`'s `firmware_file` against the package root) from the archive is unhandled and
+needs picking up, likely in `suite.py` or `cli.py` ahead of `load_suite()`.
 
 ## Package layout
 
@@ -31,14 +37,14 @@ Software/
       delay.py, beep.py, power.py, iomod.py, python_step.py, operator_intervention.py  # done
       firmware.py           # stub for now — see Deferred work below — done
       led_spectral.py       # stub for now — see Deferred work below — done
-    runner.py              # TestRunner: iterate steps, call executor, honour hard_fail, build report — done
+    runner.py              # TestRunner: iterate steps, call executor, honour abort_on_fail, build report — done
     cli.py                 # entry point, `python -m testomatic run suite.json` — done, unverified on hardware
     __main__.py             # `python -m testomatic` dispatch — done
   tests/
     conftest.py             # FakePower/FakeBeeper/FakeIomod/FakeChassis fixtures — done
-    test_suite_parsing.py  # exercises aqs-hw41-test-suite-v1.json as a fixture — done
+    test_suite_parsing.py  # exercises aqs-hw41-test-suite-v1/test-suite-definition.json as a fixture — done
     test_steps.py           # one test module per executor, against the fake hardware — done
-    test_runner.py          # hard-fail/soft-fail/unknown-step-type orchestration — done
+    test_runner.py          # abort-on-fail/soft-fail/unknown-step-type orchestration — done
 ```
 
 `steps/registry.py` mirrors the driver-registry pattern `testomatic-io` already uses for IOMOD
@@ -82,11 +88,11 @@ whatever preconditions a `READ_RAIL_VOLTAGE`/`READ_RAIL_CURRENT` step needs (e.g
 `CONTROL_POWER_RAIL` step having turned that rail on) — the runner doesn't need to enforce that
 itself.
 
-**Exception:** on a hard-fail (a step with `hard_fail: true` fails), the runner must immediately
+**Exception:** on an abort-on-fail (a step with `abort_on_fail: true` fails), the runner must immediately
 turn off all three rails — `chassis.power.rail_3v3(False)`, `rail_5v(False)`, `rail_12v(False)` —
 before stopping, regardless of what the runner believes their current state to be and regardless
 of what step is executing. This is a safety measure (protecting the DUT/chassis on abort), not
-part of normal step execution, so it belongs in `runner.py`'s hard-fail handling, not in
+part of normal step execution, so it belongs in `runner.py`'s abort-on-fail handling, not in
 `power.py`'s `CONTROL_POWER_RAIL` executor.
 
 ## Deferred work (stubbed for v1)
@@ -111,10 +117,10 @@ part of normal step execution, so it belongs in `runner.py`'s hard-fail handling
 
 - `TestRunner.run(suite, chassis, test_module)` executes steps by `order`, collecting a
   `StepResult` per step.
-- On a step result of failure: if `hard_fail` is `True`, turn off all three power rails (see
+- On a step result of failure: if `abort_on_fail` is `True`, turn off all three power rails (see
   Power rail control above) and stop immediately; otherwise continue and record the failure.
 - `config_schema_version` should be checked per step (`== 1` for now) so a future format change
-  fails loudly instead of misreading fields — matches the guidance in `test-suite-export.md` about
+  fails loudly instead of misreading fields — matches the guidance in `test-suite-package.md` about
   not conflating it with `export_schema_version`.
 - Optional `config` fields: apply the documented defaults (e.g. `BEEP.count` defaults to `1` when
   absent) rather than assuming `null`.
@@ -163,8 +169,8 @@ runner/executors themselves.
       (see Testing above), plus the `firmware.py`/`led_spectral.py` stubs (print-and-pass) so full
       suites containing those step types can run end-to-end. **Still unchecked**: verification
       against the real chassis hasn't happened.
-- [x] **Phase 4** — `runner.py` orchestration + hard-fail/report logic, including the all-rails-off
-      safety behaviour on hard-fail — implemented and unit-tested; also pending real-hardware
+- [x] **Phase 4** — `runner.py` orchestration + abort-on-fail/report logic, including the all-rails-off
+      safety behaviour on abort-on-fail — implemented and unit-tested; also pending real-hardware
       verification alongside Phase 3.
 - [ ] **Phase 5** — `UPLOAD_FIRMWARE`, once the firmware-source question above is settled.
 - [ ] **Phase 6** — `LED_SPECTRAL_READING`, once the existing sensor driver is wired in (either via

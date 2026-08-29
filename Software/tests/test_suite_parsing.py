@@ -8,7 +8,7 @@ import pytest
 
 from testomatic.suite import SuiteFormatError, load_suite, parse_suite
 
-FIXTURE = Path(__file__).parent.parent / "aqs-hw41-test-suite-v1.json"
+FIXTURE = Path(__file__).parent.parent / "aqs-hw41-test-suite-v1" / "test-suite-definition.json"
 
 
 def _envelope(**overrides) -> dict:
@@ -55,11 +55,11 @@ def test_rejects_missing_required_key():
 
 def test_sorts_steps_and_manual_checks_by_order():
     step_a = {
-        "order": 1, "step_type": "DELAY", "name": "a", "hard_fail": False,
+        "order": 1, "step_type": "DELAY", "name": "a", "abort_on_fail": False,
         "config_schema_version": 1, "config": {"schema_version": 1, "delay_ms": 1},
     }
     step_b = {
-        "order": 2, "step_type": "DELAY", "name": "b", "hard_fail": False,
+        "order": 2, "step_type": "DELAY", "name": "b", "abort_on_fail": False,
         "config_schema_version": 1, "config": {"schema_version": 1, "delay_ms": 1},
     }
     suite = parse_suite(_envelope(
@@ -73,7 +73,7 @@ def test_sorts_steps_and_manual_checks_by_order():
 
 def test_rejects_config_schema_version_mismatch():
     step = {
-        "order": 1, "step_type": "DELAY", "name": "a", "hard_fail": False,
+        "order": 1, "step_type": "DELAY", "name": "a", "abort_on_fail": False,
         "config_schema_version": 2, "config": {"schema_version": 1, "delay_ms": 1},
     }
 
