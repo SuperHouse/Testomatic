@@ -78,7 +78,10 @@ starting runner work.
 `Software/` is a `testomatic` package implementing the test runner, plus its reference docs:
 
 - `src/testomatic/suite.py` — parses/validates a Test Suite Definition (JSON) into dataclasses
-  (`load_suite(path)` → `TestSuiteFile`); see `test-suite-package.md` below for the format.
+  (`load_suite(path)` → `TestSuiteFile`); `path` may be a Test Suite Package `.zip` (its wrapped
+  `test-suite-definition.json` is located by filename suffix, since it sits inside a top-level
+  folder named after the package) or a bare Test Suite Definition JSON file directly — see
+  `test-suite-package.md` below for the format.
 - `src/testomatic/steps/` — one executor module per `step_type` (`delay.py`, `beep.py`,
   `power.py`, `iomod.py`, `python_step.py`, `operator_intervention.py`, plus the deferred stubs
   `firmware.py`/`led_spectral.py` — see `TEST_RUNNER_PLAN.md`'s "Deferred work"). Each executor is
@@ -90,9 +93,11 @@ starting runner work.
   registry, stops and turns off all three power rails immediately if an `abort_on_fail` step fails
   (the one case where the runner touches rails on its own initiative — see `TEST_RUNNER_PLAN.md`),
   and returns a `RunReport`; `format_report()` renders it plus the suite's `manual_checks`.
-- `src/testomatic/cli.py` / `__main__.py` — `python -m testomatic run <suite.json>` entry point.
-  Only importable/runnable on real Raspberry Pi hardware (imports `testomatic_io` at call time)
-  — **not yet exercised against a real chassis**.
+- `src/testomatic/cli.py` / `__main__.py` — `python -m testomatic run <suite.zip|suite.json>`
+  entry point; accepts either a Test Suite Package ZIP or a bare Test Suite Definition JSON file,
+  since it just forwards its argument to `suite.load_suite()`. Only importable/runnable on real
+  Raspberry Pi hardware (imports `testomatic_io` at call time) — confirmed working on a real
+  chassis for `BEEP`/`READ_RAIL_VOLTAGE`; see `TEST_RUNNER_PLAN.md` for what's still unverified.
 - `tests/conftest.py` — `FakeChassis`/`FakePower`/`FakeBeeper`/`FakeIomod` doubles (as pytest
   fixtures `chassis`/`test_module`/`context`) standing in for real `testomatic-io` hardware, since
   step executors only ever duck-type against whatever `chassis` object they're given.

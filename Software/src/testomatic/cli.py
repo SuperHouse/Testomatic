@@ -1,6 +1,7 @@
-"""Command-line entry point: `python -m testomatic run <suite.json>`.
+"""Command-line entry point: `python -m testomatic run <suite.zip|suite.json>`.
 
-Not yet run against real hardware — see TEST_RUNNER_PLAN.md.
+Verified against real Testomatic hardware for BEEP and READ_RAIL_VOLTAGE — see
+TEST_RUNNER_PLAN.md for what's still unverified.
 """
 
 from __future__ import annotations
@@ -15,8 +16,11 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="testomatic")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    run_parser = subparsers.add_parser("run", help="Execute a Test Suite JSON file")
-    run_parser.add_argument("suite_path", help="Path to a Test Suite JSON export")
+    run_parser = subparsers.add_parser("run", help="Execute a Test Suite")
+    run_parser.add_argument(
+        "suite_path",
+        help="Path to a Test Suite Package (.zip) or a Test Suite Definition JSON file",
+    )
 
     args = parser.parse_args(argv)
 

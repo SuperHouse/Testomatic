@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import zipfile
 from pathlib import Path
 
 import pytest
@@ -9,6 +10,7 @@ import pytest
 from testomatic.suite import SuiteFormatError, load_suite, parse_suite
 
 FIXTURE = Path(__file__).parent.parent / "aqs-hw41-test-suite-v1" / "test-suite-definition.json"
+ZIP_FIXTURE = Path(__file__).parent.parent / "aqs-hw41-test-suite-v1.zip"
 
 
 def _envelope(**overrides) -> dict:
@@ -38,6 +40,36 @@ def test_loads_sample_suite_fixture():
 
     assert len(suite.manual_checks) == 1
     assert suite.manual_checks[0].text == "Check me please"
+
+
+def test_loads_sample_suite_from_zip_package():
+    """load_suite() also accepts a Test Suite Package .zip directly, locating the wrapped
+    test-suite-definition.json inside its same-named top-level folder."""
+    suite = load_suite(ZIP_FIXTURE)
+
+    assert suite.design.sku == "AQS"
+    assert suite.design.hw_version == "4.1"
+    assert len(suite.test_steps) == 1
+    assert suite.test_steps[0].step_type == "BEEP"
+
+
+def test_rejects_zip_package_without_a_definition_file(tmp_path):
+    empty_package = tmp_path / "empty.zip"
+    with zipfile.ZipFile(empty_package, "w") as archive:
+        archive.writestr("empty/readme.txt", "nothing here")
+
+    with pytest.raises(SuiteFormatError):
+        load_suite(empty_package)
+
+
+def test_rejects_zip_package_with_multiple_definition_files(tmp_path):
+    ambiguous_package = tmp_path / "ambiguous.zip"
+    with zipfile.ZipFile(ambiguous_package, "w") as archive:
+        archive.writestr("a/test-suite-definition.json", "{}")
+        archive.writestr("b/test-suite-definition.json", "{}")
+
+    with pytest.raises(SuiteFormatError):
+        load_suite(ambiguous_package)
 
 
 def test_rejects_unsupported_export_schema_version():

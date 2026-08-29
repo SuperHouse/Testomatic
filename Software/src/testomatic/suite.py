@@ -1,18 +1,18 @@
 """Parsing and validation for the Test Suite Definition JSON.
 
 Format reference: test-suite-package.md (mirrors the format Register's
-`testing.views._serialize_test_suite` produces). Note this parses the
-`test-suite-definition.json` contents directly — it does not unpack a
-Test Suite Package ZIP; see TEST_RUNNER_PLAN.md.
+`testing.views._serialize_test_suite` produces).
 """
 
 from __future__ import annotations
 
 import json
+import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 
 SUPPORTED_EXPORT_SCHEMA_VERSION = 1
+TEST_SUITE_DEFINITION_FILENAME = "test-suite-definition.json"
 
 
 class SuiteFormatError(ValueError):
@@ -61,9 +61,37 @@ class TestSuiteFile:
 
 
 def load_suite(path: str | Path) -> TestSuiteFile:
-    """Load and validate a Test Suite JSON export from `path`."""
-    data = json.loads(Path(path).read_text())
-    return parse_suite(data)
+    """Load and validate a Test Suite Definition from `path`.
+
+    `path` may point directly at a Test Suite Definition JSON file, or at a Test Suite Package
+    ZIP archive (see test-suite-package.md) — the package's wrapped test-suite-definition.json is
+    located and parsed automatically.
+    """
+    path = Path(path)
+    if path.suffix == ".zip":
+        text = _read_definition_from_package(path)
+    else:
+        text = path.read_text()
+    return parse_suite(json.loads(text))
+
+
+def _read_definition_from_package(path: Path) -> str:
+    """Finds and reads test-suite-definition.json from inside a Test Suite Package ZIP.
+
+    Located by filename suffix rather than a hardcoded path, since the definition sits inside a
+    top-level folder named after the package (e.g. `abc-hw1-0-test-suite-v3/test-suite-
+    definition.json`), not at the archive root.
+    """
+    with zipfile.ZipFile(path) as archive:
+        matches = [name for name in archive.namelist() if name.endswith(TEST_SUITE_DEFINITION_FILENAME)]
+        if not matches:
+            raise SuiteFormatError(f"No {TEST_SUITE_DEFINITION_FILENAME} found in Test Suite Package {path}")
+        if len(matches) > 1:
+            raise SuiteFormatError(
+                f"Multiple {TEST_SUITE_DEFINITION_FILENAME} entries found in Test Suite Package "
+                f"{path}: {matches}"
+            )
+        return archive.read(matches[0]).decode("utf-8")
 
 
 def parse_suite(data: dict) -> TestSuiteFile:

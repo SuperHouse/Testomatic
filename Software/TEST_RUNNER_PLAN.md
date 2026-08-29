@@ -1,9 +1,11 @@
 # Test Runner — Implementation Plan
 
 Status: Phases 1, 2 and 4 implemented and unit-tested (against fake hardware, see Testing below).
-Phase 3's code is written and unit-tested the same way, but **not yet verified against the real
-chassis** — nobody's run this on actual Testomatic hardware yet. Phases 5/6 remain deferred
-stubs. Staged implementation — check off phases as they land.
+Phase 3's code is written and unit-tested the same way; `cli.py` has now been run against a real
+chassis and confirmed working for `BEEP` and `READ_RAIL_VOLTAGE`, but the rest of Phase 3
+(`CONTROL_POWER_RAIL`, `READ_RAIL_CURRENT`, both `IOMOD_*` step types) is **still unverified on
+real hardware**. Phases 5/6 remain deferred stubs. Staged implementation — check off phases as
+they land.
 
 ## Scope for v1
 
@@ -14,15 +16,15 @@ in order against real hardware via `testomatic-io` (`~/Dropbox/src/testomatic-io
 executed. Firmware upload and the colour-sensor step are stubbed for now (see below) —
 everything else maps cleanly onto `testomatic-io`'s existing API.
 
-`suite.py`'s `load_suite()` currently takes a path straight to a Test Suite Definition JSON file —
-it does not yet unpack a Test Suite Package ZIP. Now that Register delivers the ZIP (see
-`test-suite-package.md`), extracting `test-suite-definition.json` (and resolving files like
-`UPLOAD_FIRMWARE`'s `firmware_file` against the package root) from the archive is unhandled and
-needs picking up, likely in `suite.py` or `cli.py` ahead of `load_suite()`. Note the archive wraps
-everything in one top-level folder named after the archive itself (e.g. extracting
-`abc-hw1-0-test-suite-v3.zip` yields `abc-hw1-0-test-suite-v3/test-suite-definition.json`, not a
-bare `test-suite-definition.json` at the archive root) — whatever unpacks the ZIP needs to look
-inside that folder rather than assuming the file sits at the archive's top level.
+`suite.py`'s `load_suite()` accepts either a Test Suite Package `.zip` or a bare Test Suite
+Definition JSON file — dispatched on the path's extension. For a `.zip`, it locates
+`test-suite-definition.json` by filename suffix (it sits inside a top-level folder named after the
+package, not at the archive root — see `test-suite-package.md`) rather than assuming a fixed path,
+so it doesn't care whether the wrapping folder name matches the archive's own name. `cli.py`'s
+`run` command accepts either form the same way, since it just forwards its argument to
+`load_suite()`. **Still not handled**: resolving other files a step might reference from inside
+the package (e.g. `UPLOAD_FIRMWARE`'s `firmware_file`) — that's tied up with the deferred
+`UPLOAD_FIRMWARE` work below, not with loading the suite itself.
 
 ## Package layout
 
@@ -42,7 +44,8 @@ Software/
       firmware.py           # stub for now — see Deferred work below — done
       led_spectral.py       # stub for now — see Deferred work below — done
     runner.py              # TestRunner: iterate steps, call executor, honour abort_on_fail, build report — done
-    cli.py                 # entry point, `python -m testomatic run suite.json` — done, unverified on hardware
+    cli.py                 # entry point, `python -m testomatic run suite.zip|suite.json` — done,
+                             # confirmed working on real hardware for BEEP/READ_RAIL_VOLTAGE
     __main__.py             # `python -m testomatic` dispatch — done
   tests/
     conftest.py             # FakePower/FakeBeeper/FakeIomod/FakeChassis fixtures — done
@@ -144,8 +147,9 @@ exercised on the Pi (its `from testomatic_io import Chassis, TestModule` only su
 hardware — see the `pi` extra note below, it's not just an import-time platform check, the
 package can't even be *installed* on macOS) — just not needed for unit-testing the
 runner/executors themselves.
-`suite.py`'s JSON parsing/validation needs no stubbing at all — tested directly against
-`aqs-hw41-test-suite-v1.json`.
+`suite.py`'s JSON parsing/validation needs no stubbing at all — tested directly against both the
+extracted `aqs-hw41-test-suite-v1/test-suite-definition.json` and the packaged
+`aqs-hw41-test-suite-v1.zip`.
 
 ## `pyproject.toml` changes made
 
@@ -171,11 +175,12 @@ runner/executors themselves.
       `OPERATOR_INTERVENTION`) against a mocked `Chassis`.
 - [ ] **Phase 3** — `power.py` and `iomod.py` are written and unit-tested against fake hardware
       (see Testing above), plus the `firmware.py`/`led_spectral.py` stubs (print-and-pass) so full
-      suites containing those step types can run end-to-end. **Still unchecked**: verification
-      against the real chassis hasn't happened.
+      suites containing those step types can run end-to-end. `READ_RAIL_VOLTAGE` (`power.py`) is
+      confirmed working on the real chassis; `CONTROL_POWER_RAIL`/`READ_RAIL_CURRENT` and both
+      `IOMOD_*` step types (`iomod.py`) are **still unverified** against real hardware.
 - [x] **Phase 4** — `runner.py` orchestration + abort-on-fail/report logic, including the all-rails-off
-      safety behaviour on abort-on-fail — implemented and unit-tested; also pending real-hardware
-      verification alongside Phase 3.
+      safety behaviour on abort-on-fail — implemented and unit-tested, and `BEEP`/`READ_RAIL_VOLTAGE`
+      have now run successfully end-to-end via `cli.py` on a real chassis.
 - [ ] **Phase 5** — `UPLOAD_FIRMWARE`, once the firmware-source question above is settled.
 - [ ] **Phase 6** — `LED_SPECTRAL_READING`, once the existing sensor driver is wired in (either via
       a `testomatic-io` `chassis.colour_sensor` subsystem or directly in this executor).
