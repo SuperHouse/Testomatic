@@ -132,6 +132,38 @@ Lean more about the Register at [github.com/SuperHouse/register](https://github.
 Schematic and PCB were created in Fusion360 and exported as EAGLE format,
 which can be imported back into Fusion360 or various other packages including KiCAD.
 
+## Terminology
+Chassis: A general purpose test jig that can execute tests.
+
+Design: The abstract design of a type of printed circuit board, including the product name, SKU, schematic, PCB layout, bill of materials, and other production data.
+
+Device: An assembled circuit board that is a concrete instantiation of a Design with an identifier such as a serial number that allows it to be unambiguously differentiated from other Devices of the same Design.
+
+Device Under Test / DUT: When a Device is fitted into a Test Module in a Chassis so that it can be tested, it can be referred to as the Device Under Test.
+
+Test Module: Hardware shim that fits into a Chassis and provides connections to a specific DUT.
+
+Test Item: An abstract definition of an action that can be performed while testing a DUT, such as measurign a power rail, or sending a signal to it.
+
+Test Step: An instantiation of a Test Item with specific configuration details such as which power rail to measure, or which I/O pin to use for sending a signal. Test Steps are executed automatically during the process of testing a DUT.
+
+Manual Check: One step that is executed manually during the process of testing a DUT.
+
+Test Suite: A collection of Test Items and Manual Checks that constitutes the steps required to test a DUT.
+
+Test Run: One execution of a Test Suite against a Device Under Test.
+
+Test Output: The data collected during a Test Run, with values and outcomes that are specific to that Device.
+
+Test Result: Pass/Fail/Abort/Error. Pass: all Test Steps executed within required parameters. Fail: Test Suite was completed, but one or more Test Steps were outside required parameters. Abort: Test Suite was not completed because a Test Step caused the process to abort. Error: Test Suite was not completed because an environmental problem prevented execution.
+
+Register: Software system that stores definitions of Designs, Test Items, and Test Suites, along with production data and Test Results related to Devices.
+
+Test Suite Definition: A JSON file that contains the Test Steps and Manual Checks of a Test Suite.
+
+Test Suite Package: A Test Suite Definition together with the additional artifacts it references and requires for execution, such as firmware binaries, whether delivered as a single archive or assembled from multiple sources such as separate API fetches.
+
+Test Runner: Software that runs on the Chassis to load a Test Suite, execute its Test Steps against a Device, and report the resulting Test Results.
 
 ## Credits
 Designed by Jonathan Oxer <jon@oxer.com.au> with the assistance of many members of the SuperHouse Discord.

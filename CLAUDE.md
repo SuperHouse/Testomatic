@@ -16,6 +16,23 @@ Python software component. Most directories contain CAD/PCB source files, not co
 - `Images/`, `Resources/` — photos/diagrams and datasheets/misc binaries (not code)
 - `Software/` — the only actual code in this repo (see below)
 
+## Terminology
+
+`README.md`'s **Terminology** section is the controlled vocabulary for this project (Chassis,
+Design, Device, Test Module, Test Item, Test Step, Manual Check, Test Suite, Test Run, Test
+Result, Register, Test Runner, plus two introduced for the artifact that carries a Test Suite
+from Register to a Test Runner — **Test Suite Definition** and **Test Suite Package**, see below).
+Use those terms as defined there rather than looser language like "export."
+
+- **Test Suite Definition** — a JSON document containing a Test Suite's Test Steps and Manual
+  Checks. Deliberately not "Test Suite Export": the JSON download currently in `Software/` is one
+  transport for it, not the concept itself — a future goal is Testomatic discovering and fetching
+  Test Suite Definitions from a Register API instead.
+- **Test Suite Package** — a Test Suite Definition plus the additional artifacts it references
+  and needs to run (e.g. firmware binaries for `UPLOAD_FIRMWARE`), whether delivered as one
+  archive or assembled from multiple sources. Not implemented anywhere yet — this is the concept
+  that `TEST_RUNNER_PLAN.md`'s `UPLOAD_FIRMWARE` gap is waiting on a design for.
+
 ## Ecosystem — three sibling repos, each with its own CLAUDE.md
 
 This repo (chassis hardware design + eventual test-runner software) is one part of a three-repo
@@ -32,9 +49,9 @@ crosses a boundary — don't rely on summaries here going stale:
   (Adafruit Blinka does platform detection at import time).
 - **Register** (`/Users/jon/Dropbox/src/register-macbook`, Django app under `pyproj/`) — the
   central production/test database. Its `testing` app defines `TestSuite`/`TestStep`/
-  `ManualCheck` models, staff-edited per PCB `Design`, and exports them as the Test Suite JSON
-  format documented in `Software/test-suite-export.md` (that file, and the sample
-  `Software/aqs-hw41-test-suite-v1.json`, both originate from Register's
+  `ManualCheck` models, staff-edited per PCB `Design`, and currently serves a Test Suite Definition
+  as a JSON download in the format documented in `Software/test-suite-export.md` (that file, and
+  the sample `Software/aqs-hw41-test-suite-v1.json`, both originate from Register's
   `docs/api/test-suite-export.md` and `testing.views.test_suite_download`/`_serialize_test_suite`
   — keep this repo's copy in sync if that format changes on the Register side). Register's
   `testing.TestStep.STEP_TYPE_CHOICES` is the authoritative list of step types; it currently has
@@ -42,42 +59,62 @@ crosses a boundary — don't rely on summaries here going stale:
   integration with this project.
 
 **The intended pipeline:** a Test Suite is authored/versioned in Register against a `Design` →
-downloaded/served as the JSON format above → a test runner in this repo's `Software/` parses it
-and executes each `TestStep` in order → each step's hardware action (drive a rail, read an IOMOD
-pin, read the colour sensor, etc.) is carried out via `testomatic-io`'s `Chassis`/`TestModule`
-API. None of that runner exists yet — `Software/` today is just the scaffold plus the format
-reference (see below). The staged implementation plan for the runner lives in
-`Software/TEST_RUNNER_PLAN.md` — check it (and its phase checklist) before starting runner work.
+conveyed to this repo as a Test Suite Definition (today: JSON file download; a future goal is
+Testomatic discovering and fetching one from a Register API) → a test runner in this repo's
+`Software/` parses it and executes each `TestStep` in order → each step's hardware action (drive a
+rail, read an IOMOD pin, read the colour sensor, etc.) is carried out via `testomatic-io`'s
+`Chassis`/`TestModule` API. That runner is now partially implemented in `Software/` (see below);
+the staged implementation plan, including what's done vs. still pending real-hardware
+verification, lives in `Software/TEST_RUNNER_PLAN.md` — check it (and its phase checklist) before
+starting runner work.
 
 ## Software/ — the Python component
 
-`Software/` is an early-stage scaffold, not yet a working test runner:
+`Software/` is a `testomatic` package implementing the test runner, plus its reference docs:
 
-- `src/testomatic/__init__.py` — empty package (just a docstring)
-- `tests/test_testomatic.py` — a single smoke test that the package imports
-- `pyproject.toml` — project metadata only; **no `[build-system]`, no dependencies, no tool
-  config (pytest/ruff/etc.) declared yet**
+- `src/testomatic/suite.py` — parses/validates a Test Suite Definition (JSON) into dataclasses
+  (`load_suite(path)` → `TestSuiteFile`); see `test-suite-export.md` below for the format.
+- `src/testomatic/steps/` — one executor module per `step_type` (`delay.py`, `beep.py`,
+  `power.py`, `iomod.py`, `python_step.py`, `operator_intervention.py`, plus the deferred stubs
+  `firmware.py`/`led_spectral.py` — see `TEST_RUNNER_PLAN.md`'s "Deferred work"). Each executor is
+  a plain `(config, context) -> StepResult` function registered against its `step_type` string in
+  `registry.STEP_EXECUTORS` via `@register_step(...)` (`registry.py`) — dict-of-functions dispatch,
+  not a class hierarchy, since (unlike `testomatic-io`'s IOMOD chip drivers) there's no runtime
+  probing involved: the `step_type` is already known from the parsed JSON.
+- `src/testomatic/runner.py` — `TestRunner.run(suite)` executes `test_steps` in order via the
+  registry, stops and turns off all three power rails immediately if a `hard_fail` step fails
+  (the one case where the runner touches rails on its own initiative — see `TEST_RUNNER_PLAN.md`),
+  and returns a `RunReport`; `format_report()` renders it plus the suite's `manual_checks`.
+- `src/testomatic/cli.py` / `__main__.py` — `python -m testomatic run <suite.json>` entry point.
+  Only importable/runnable on real Raspberry Pi hardware (imports `testomatic_io` at call time)
+  — **not yet exercised against a real chassis**.
+- `tests/conftest.py` — `FakeChassis`/`FakePower`/`FakeBeeper`/`FakeIomod` doubles (as pytest
+  fixtures `chassis`/`test_module`/`context`) standing in for real `testomatic-io` hardware, since
+  step executors only ever duck-type against whatever `chassis` object they're given.
 - `test-suite-export.md` — reference documentation (copied from the Register project) describing
-  the Test Suite JSON export format that a "Testomatic tester" is expected to read
-- `aqs-hw41-test-suite-v1.json` — a real sample export in that format, useful as test fixture data
-- `TEST_RUNNER_PLAN.md` — the staged implementation plan (draft, not started) for the test runner
-  described above: package layout, step-type → `testomatic-io` mapping, known gaps
-  (`LED_SPECTRAL_READING`, `UPLOAD_FIRMWARE`), and a phase checklist
+  the Test Suite Definition format `suite.py` parses. (File name predates the "Test Suite
+  Definition" term — see Terminology above — and hasn't been renamed to match.)
+- `aqs-hw41-test-suite-v1.json` — a real sample Test Suite Definition in that format, used as a
+  test fixture.
+- `TEST_RUNNER_PLAN.md` — the staged implementation plan: what's done, what's stubbed pending
+  design decisions, and the phase checklist. Keep it updated as phases land.
 
 ### Working here
 
-- There's no build backend or lockfile yet, so `pip install -e .` won't work until
-  `[build-system]` is added. Run tests directly instead:
-  ```
-  cd Software
-  pip install pytest
-  python -m pytest tests/
-  ```
-- To run a single test: `python -m pytest tests/test_testomatic.py::test_import`
+```bash
+cd Software
+pip install -e ".[dev]"
+pytest
+```
+- To run a single test: `pytest tests/test_steps.py::test_beep_alternates_beep_and_silence`
+- `testomatic-io` is on PyPI but lives in the `pi` extra (`pip install -e ".[pi]"`), not core
+  dependencies: it pulls in `gpiod`, whose native extension only builds on Linux — a core
+  dependency broke `pip install -e ".[dev]"` outright on macOS. Install the `pi` extra on the
+  Raspberry Pi itself to actually run `cli.py`; see `TEST_RUNNER_PLAN.md` for detail.
 
-### The Test Suite JSON format (`test-suite-export.md`)
+### The Test Suite Definition format (`test-suite-export.md`)
 
-This is the key contract for any test-runner code added here. A Test Suite export is one JSON
+This is the key contract for any test-runner code added here. A Test Suite Definition is one JSON
 object with four top-level keys: `design`, `test_suite`, `test_steps` (array, execution order),
 and `manual_checks` (array). Each `test_steps` entry has a fixed outer shape
 (`order`, `step_type`, `name`, `hard_fail`, `config_schema_version`, `config`) with a

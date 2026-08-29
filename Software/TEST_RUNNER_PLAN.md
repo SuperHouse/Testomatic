@@ -1,6 +1,9 @@
 # Test Runner — Implementation Plan
 
-Status: draft, not started. Staged implementation — check off phases as they land.
+Status: Phases 1, 2 and 4 implemented and unit-tested (against fake hardware, see Testing below).
+Phase 3's code is written and unit-tested the same way, but **not yet verified against the real
+chassis** — nobody's run this on actual Testomatic hardware yet. Phases 5/6 remain deferred
+stubs. Staged implementation — check off phases as they land.
 
 ## Scope for v1
 
@@ -18,25 +21,34 @@ top-level name:
 
 ```
 Software/
-  pyproject.toml          # add [build-system], deps: testomatic-io, pytest
+  pyproject.toml          # [build-system] + dev extra (pytest) — done. testomatic-io is a `pi`
+                           # extra, not a core dependency, see pyproject.toml changes below
   src/testomatic/
-    suite.py              # dataclasses + parsing/validation for the JSON envelope
+    suite.py              # dataclasses + parsing/validation for the JSON envelope — done
     steps/
-      base.py             # StepExecutor ABC + StepResult dataclass
-      registry.py          # STEP_EXECUTORS: dict[str, StepExecutor] + @register_step
-      delay.py, beep.py, power.py, iomod.py, python_step.py, operator.py
-      firmware.py           # stub for now — see Deferred work below
-      led_spectral.py       # stub for now — see Deferred work below
-    runner.py              # TestRunner: iterate steps, call executor, honour hard_fail, build report
-    cli.py                 # entry point, e.g. `python -m testomatic run suite.json`
+      base.py             # StepResult + ExecutionContext dataclasses — done
+      registry.py          # STEP_EXECUTORS: dict[str, StepExecutor] + @register_step — done
+      delay.py, beep.py, power.py, iomod.py, python_step.py, operator_intervention.py  # done
+      firmware.py           # stub for now — see Deferred work below — done
+      led_spectral.py       # stub for now — see Deferred work below — done
+    runner.py              # TestRunner: iterate steps, call executor, honour hard_fail, build report — done
+    cli.py                 # entry point, `python -m testomatic run suite.json` — done, unverified on hardware
+    __main__.py             # `python -m testomatic` dispatch — done
   tests/
-    test_suite_parsing.py  # exercises aqs-hw41-test-suite-v1.json as a fixture
-    test_steps_*.py        # mock testomatic_io, per its own tests' pattern (see Testing below)
+    conftest.py             # FakePower/FakeBeeper/FakeIomod/FakeChassis fixtures — done
+    test_suite_parsing.py  # exercises aqs-hw41-test-suite-v1.json as a fixture — done
+    test_steps.py           # one test module per executor, against the fake hardware — done
+    test_runner.py          # hard-fail/soft-fail/unknown-step-type orchestration — done
 ```
 
 `steps/registry.py` mirrors the driver-registry pattern `testomatic-io` already uses for IOMOD
-chips (`DRIVERS` + `probe()` in `testomatic_io/iomod/drivers/__init__.py`) — same idiom, so
-anyone who knows one codebase recognises the other.
+chips (`DRIVERS` + `probe()` in `testomatic_io/iomod/drivers/__init__.py`), adapted for dispatch
+by a known key (`step_type`) rather than runtime probing — so it's a dict of plain functions
+(`STEP_EXECUTORS: dict[str, StepExecutor]`), not a class hierarchy. The original idea of a
+`StepExecutor` ABC was dropped since there's no per-executor state or polymorphic instantiation
+to justify a class — every executor is a stateless `(config, context) -> StepResult` function.
+`operator.py` was renamed `operator_intervention.py` to avoid shadowing the stdlib `operator`
+module.
 
 ## Step type → `testomatic-io` mapping
 
@@ -111,33 +123,49 @@ part of normal step execution, so it belongs in `runner.py`'s hard-fail handling
 
 ## Testing without a Pi
 
-`testomatic_io` refuses to import off real hardware (Blinka does platform detection at import
-time). Follow the same approach its own test suite uses — stub `board`/`tca9548a`/`gpiod`/`busio`
-in `sys.modules` (or reuse fixtures from `testomatic-io/tests/conftest.py` if it exposes a fake
-`Chassis`) before importing, so step-executor logic is fully testable off-hardware.
-`suite.py`'s JSON parsing/validation needs no stubbing at all — test it directly against
+Implemented more simply than originally planned: step executors never import `testomatic_io`
+themselves — they only call methods on whatever `chassis`/`test_module` object `runner.py` was
+given, via plain duck typing. So instead of stubbing `board`/`tca9548a`/`gpiod`/`busio` in
+`sys.modules` before importing the real package, `tests/conftest.py` defines hand-rolled
+`FakeChassis`/`FakePower`/`FakeBeeper`/`FakeIomod`/`FakeTestModule` classes matching
+`testomatic-io`'s public API shape, exposed as pytest fixtures (`chassis`, `test_module`,
+`context`). That stubbing approach is still exactly what `cli.py` will need when it's actually
+exercised on the Pi (its `from testomatic_io import Chassis, TestModule` only succeeds on real
+hardware — see the `pi` extra note below, it's not just an import-time platform check, the
+package can't even be *installed* on macOS) — just not needed for unit-testing the
+runner/executors themselves.
+`suite.py`'s JSON parsing/validation needs no stubbing at all — tested directly against
 `aqs-hw41-test-suite-v1.json`.
 
-## `pyproject.toml` changes needed
+## `pyproject.toml` changes made
 
-Currently has no `[build-system]`, deps, or tool config. Add:
-- `[build-system]` (setuptools, src layout)
-- a dependency on `testomatic-io` (path/git dependency for now — it isn't on PyPI)
-- `pytest` as a dev dependency
-- possibly `click` or `typer` for `cli.py`, or just `argparse` to avoid a new dependency for
-  something this small
+- `[build-system]` (setuptools, src layout) — done
+- `pytest` as a dev extra (`pip install -e ".[dev]"`) — done
+- `python_classes = ["*Tests"]` under `[tool.pytest.ini_options]` — added so pytest doesn't try
+  (and warn about failing) to collect `TestStep`/`TestSuiteFile`/`TestRunner` etc. as test classes
+  just because of the `Test` prefix; they're plain domain dataclasses, not test classes
+- `testomatic-io>=0.1.0` is on PyPI, but is a `pi` extra (`pip install -e ".[pi]"`), **not** a core
+  dependency: it pulls in `gpiod` (libgpiod's Python bindings), which has a native C extension
+  that only builds on Linux (needs `linux/const.h`) — installing it as a core dependency broke
+  `pip install -e ".[dev]"` outright on macOS (a wheel build failure, confirmed by trying it), not
+  just an import-time platform check. Install the `pi` extra on the Raspberry Pi itself when
+  `cli.py`'s real-hardware path is actually exercised.
+- **Not added**: `click`/`typer` — `cli.py` uses stdlib `argparse`, which was enough for the one
+  `run <suite_path>` subcommand
 
 ## Staged order of work
 
-- [ ] **Phase 1** — `suite.py` parsing/validation against the sample JSON. No hardware needed,
+- [x] **Phase 1** — `suite.py` parsing/validation against the sample JSON. No hardware needed,
       fully testable now.
-- [ ] **Phase 2** — `steps/base.py` + registry + the hardware-free executors (`DELAY`, `PYTHON`,
+- [x] **Phase 2** — `steps/base.py` + registry + the hardware-free executors (`DELAY`, `PYTHON`,
       `OPERATOR_INTERVENTION`) against a mocked `Chassis`.
-- [ ] **Phase 3** — wire `power.py` and `iomod.py` against real `testomatic-io`, verify on the
-      actual chassis. Include the `firmware.py`/`led_spectral.py` stubs (print-and-pass) so full
-      suites containing those step types can run end-to-end.
-- [ ] **Phase 4** — `runner.py` orchestration + hard-fail/report logic, including the all-rails-off
-      safety behaviour on hard-fail.
+- [ ] **Phase 3** — `power.py` and `iomod.py` are written and unit-tested against fake hardware
+      (see Testing above), plus the `firmware.py`/`led_spectral.py` stubs (print-and-pass) so full
+      suites containing those step types can run end-to-end. **Still unchecked**: verification
+      against the real chassis hasn't happened.
+- [x] **Phase 4** — `runner.py` orchestration + hard-fail/report logic, including the all-rails-off
+      safety behaviour on hard-fail — implemented and unit-tested; also pending real-hardware
+      verification alongside Phase 3.
 - [ ] **Phase 5** — `UPLOAD_FIRMWARE`, once the firmware-source question above is settled.
 - [ ] **Phase 6** — `LED_SPECTRAL_READING`, once the existing sensor driver is wired in (either via
       a `testomatic-io` `chassis.colour_sensor` subsystem or directly in this executor).
