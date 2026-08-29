@@ -18,7 +18,11 @@ everything else maps cleanly onto `testomatic-io`'s existing API.
 it does not yet unpack a Test Suite Package ZIP. Now that Register delivers the ZIP (see
 `test-suite-package.md`), extracting `test-suite-definition.json` (and resolving files like
 `UPLOAD_FIRMWARE`'s `firmware_file` against the package root) from the archive is unhandled and
-needs picking up, likely in `suite.py` or `cli.py` ahead of `load_suite()`.
+needs picking up, likely in `suite.py` or `cli.py` ahead of `load_suite()`. Note the archive wraps
+everything in one top-level folder named after the archive itself (e.g. extracting
+`abc-hw1-0-test-suite-v3.zip` yields `abc-hw1-0-test-suite-v3/test-suite-definition.json`, not a
+bare `test-suite-definition.json` at the archive root) — whatever unpacks the ZIP needs to look
+inside that folder rather than assuming the file sits at the archive's top level.
 
 ## Package layout
 

@@ -26,19 +26,26 @@ before it moved inside a ZIP archive — only the extension changed, from `.json
 
 ## Package contents
 
-At minimum, a Test Suite Package contains one file, at the root of the archive:
+Everything in the archive sits inside one top-level folder, named the same as the archive itself
+(without the `.zip` extension). Extracting `abc123-hw1-0-test-suite-v3.zip` therefore always
+produces a single `abc123-hw1-0-test-suite-v3/` folder, never loose files dropped into whatever
+directory it was extracted into — the package stays self-contained regardless of how it's opened.
+
+At minimum, that folder contains one file:
 
 ```
-test-suite-definition.json
+abc123-hw1-0-test-suite-v3/
+└── test-suite-definition.json
 ```
 
-This is the **Test Suite Definition** — a single JSON document listing the Test Suite's steps and
-manual checks. Its format is described below, under
+`test-suite-definition.json` is the **Test Suite Definition** — a single JSON document listing the
+Test Suite's steps and manual checks. Its format is described below, under
 [Test Suite Definition format](#test-suite-definition-format).
 
 A package may also contain other files that `test_steps` reference by filename — for example, a
-firmware binary named by an `UPLOAD_FIRMWARE` step's `firmware_file` field. A consumer resolves
-those filenames relative to the package root (see [Example](#example) below).
+firmware binary named by an `UPLOAD_FIRMWARE` step's `firmware_file` field. These sit alongside
+`test-suite-definition.json` in the same folder; a consumer resolves those filenames relative to
+it (see [Example](#example) below).
 
 ## Test Suite Definition format
 
@@ -253,8 +260,9 @@ A Test Suite Package for a board with an `UPLOAD_FIRMWARE` step unzips to:
 
 ```
 abc123-hw1-0-test-suite-v3.zip
-├── test-suite-definition.json
-└── main.hex
+└── abc123-hw1-0-test-suite-v3/
+    ├── test-suite-definition.json
+    └── main.hex
 ```
 
 `test-suite-definition.json`:

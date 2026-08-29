@@ -30,9 +30,11 @@ Use those terms as defined there rather than looser language like "export."
   Testomatic discovering and fetching Test Suite Definitions from a Register API instead.
 - **Test Suite Package** — a Test Suite Definition plus the additional artifacts it references
   and needs to run (e.g. firmware binaries for `UPLOAD_FIRMWARE`). Register now delivers this as a
-  ZIP archive (filename pattern `{sku}-hw{hw_version}-test-suite-v{version}.zip`, containing
-  `test-suite-definition.json` at its root plus any referenced files) — see
-  `Software/test-suite-package.md` for the format. This supersedes the older bare-JSON download.
+  ZIP archive (filename pattern `{sku}-hw{hw_version}-test-suite-v{version}.zip`, its contents all
+  inside one top-level folder of that same name, holding `test-suite-definition.json` plus any
+  referenced files — so extracting it can never scatter loose files into whatever directory it
+  lands in) — see `Software/test-suite-package.md` for the format. This supersedes the older
+  bare-JSON download.
 
 ## Ecosystem — three sibling repos, each with its own CLAUDE.md
 
